@@ -1,0 +1,139 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Rajasms by steevenz</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/github-light.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Rajasms</h1>
+        <p>Unofficial RajaSMS API PHP Library</p>
+
+        <p class="view"><a href="https://github.com/steevenz/rajasms">View the Project on GitHub <small>steevenz/rajasms</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/steevenz/rajasms/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/steevenz/rajasms/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/steevenz/rajasms">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h1>
+<a id="rajasms" class="anchor" href="#rajasms" aria-hidden="true"><span class="octicon octicon-link"></span></a>RajaSMS</h1>
+
+<p>Ini adalah Unofficial <a href="http://raja-sms.com">RajaSMS</a> API PHP Class, yang berfungsi untuk melakukan request API <a href="http://raja-sms.com">RajaSMS</a>. Secara default fungsi SMS Masking dalam keadaan off, setiap pengiriman sms akan dilakukan tanpa masking, pastikan anda 
+telah mengikuti regulasi yang berlaku untuk pengiriman sms masking terlebih dahulu.</p>
+
+<h2>
+<a id="instalasi" class="anchor" href="#instalasi" aria-hidden="true"><span class="octicon octicon-link"></span></a>Instalasi</h2>
+
+<p>Cara terbaik untuk melakukan instalasi library ini adalah dengan menggunakan <a href="https://packagist.org/packages/steevenz/rajasms">Composer</a></p>
+
+<pre><code>composer require steevenz/rajasms:"dev-master"
+</code></pre>
+
+<h2>
+<a id="penggunaan" class="anchor" href="#penggunaan" aria-hidden="true"><span class="octicon octicon-link"></span></a>Penggunaan</h2>
+
+<div class="highlight highlight-text-html-php"><pre><span class="pl-s1"><span class="pl-k">use</span> <span class="pl-c1">Steevenz\rajasms</span>;</span>
+<span class="pl-s1"></span>
+<span class="pl-s1"><span class="pl-c">/*</span></span>
+<span class="pl-s1"><span class="pl-c"> * --------------------------------------------------------------</span></span>
+<span class="pl-s1"><span class="pl-c"> * Inisiasi Class RajaSMS</span></span>
+<span class="pl-s1"><span class="pl-c"> *</span></span>
+<span class="pl-s1"><span class="pl-c"> * @param string Username</span></span>
+<span class="pl-s1"><span class="pl-c"> * @param string API Key</span></span>
+<span class="pl-s1"><span class="pl-c"> * --------------------------------------------------------------</span></span>
+<span class="pl-s1"><span class="pl-c"> */</span></span>
+<span class="pl-s1"> <span class="pl-smi">$rajasms</span> <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-c1">Rajasms</span>(<span class="pl-s"><span class="pl-pds">'</span>USERNAME_ANDA<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>API_KEY_ANDA<span class="pl-pds">'</span></span>);</span>
+<span class="pl-s1"></span>
+<span class="pl-s1"> <span class="pl-c">// set username secara manual</span></span>
+<span class="pl-s1"> <span class="pl-smi">$rajasms</span><span class="pl-k">-&gt;</span>set_username(<span class="pl-s"><span class="pl-pds">'</span>USERNAME_ANDA<span class="pl-pds">'</span></span>);</span>
+<span class="pl-s1"></span>
+<span class="pl-s1"> <span class="pl-c">// set api key secara manual</span></span>
+<span class="pl-s1"> <span class="pl-smi">$rajasms</span><span class="pl-k">-&gt;</span>set_api_key(<span class="pl-s"><span class="pl-pds">'</span>API_KEY_ANDA<span class="pl-pds">'</span></span>);</span>
+<span class="pl-s1"></span>
+<span class="pl-s1"><span class="pl-c">/*</span></span>
+<span class="pl-s1"><span class="pl-c"> * --------------------------------------------------------------</span></span>
+<span class="pl-s1"><span class="pl-c"> * Melakukan send sms</span></span>
+<span class="pl-s1"><span class="pl-c"> *</span></span>
+<span class="pl-s1"><span class="pl-c"> * @param string Phone Number</span></span>
+<span class="pl-s1"><span class="pl-c"> * @param string Text</span></span>
+<span class="pl-s1"><span class="pl-c"> * @param bool   Masking       Tidak menggunakan SMS Masking </span></span>
+<span class="pl-s1"><span class="pl-c"> *                             secara default</span></span>
+<span class="pl-s1"><span class="pl-c"> *</span></span>
+<span class="pl-s1"><span class="pl-c"> * @return object|bool</span></span>
+<span class="pl-s1"><span class="pl-c"> * --------------------------------------------------------------</span></span>
+<span class="pl-s1"><span class="pl-c"> */</span></span>
+<span class="pl-s1"> <span class="pl-c">// send tanpa masking</span></span>
+<span class="pl-s1"> <span class="pl-smi">$status</span> <span class="pl-k">=</span> <span class="pl-smi">$rajasms</span><span class="pl-k">-&gt;</span>send(<span class="pl-s"><span class="pl-pds">'</span>082123456789<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>Testing Raja SMS API<span class="pl-pds">'</span></span>);</span>
+<span class="pl-s1"></span>
+<span class="pl-s1"> <span class="pl-c">// send dengan masking</span></span>
+<span class="pl-s1"> <span class="pl-smi">$status</span> <span class="pl-k">=</span> <span class="pl-smi">$rajasms</span><span class="pl-k">-&gt;</span>send(<span class="pl-s"><span class="pl-pds">'</span>082123456789<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>Testing Raja SMS API<span class="pl-pds">'</span></span>, <span class="pl-c1">TRUE</span>);</span>
+<span class="pl-s1"></span>
+<span class="pl-s1"><span class="pl-c">/*</span></span>
+<span class="pl-s1"><span class="pl-c"> * --------------------------------------------------------------</span></span>
+<span class="pl-s1"><span class="pl-c"> * Melakukan check sms report</span></span>
+<span class="pl-s1"><span class="pl-c"> *</span></span>
+<span class="pl-s1"><span class="pl-c"> * @param string SMS ID        Didapat dari status send sms</span></span>
+<span class="pl-s1"><span class="pl-c"> * @param bool   Masking       Tidak menggunakan SMS Masking </span></span>
+<span class="pl-s1"><span class="pl-c"> *                             secara default</span></span>
+<span class="pl-s1"><span class="pl-c"> *</span></span>
+<span class="pl-s1"><span class="pl-c"> * @return object|bool</span></span>
+<span class="pl-s1"><span class="pl-c"> * --------------------------------------------------------------</span></span>
+<span class="pl-s1"><span class="pl-c"> */</span></span>
+<span class="pl-s1"> <span class="pl-c">// check sms report tanpa masking</span></span>
+<span class="pl-s1"> <span class="pl-smi">$report</span> <span class="pl-k">=</span> <span class="pl-smi">$rajasms</span><span class="pl-k">-&gt;</span>get_report(<span class="pl-s"><span class="pl-pds">'</span>123456<span class="pl-pds">'</span></span>);</span>
+<span class="pl-s1"></span>
+<span class="pl-s1"> <span class="pl-c">// check sms report dengan masking</span></span>
+<span class="pl-s1"> <span class="pl-smi">$report</span> <span class="pl-k">=</span> <span class="pl-smi">$rajasms</span><span class="pl-k">-&gt;</span>get_report(<span class="pl-s"><span class="pl-pds">'</span>123456<span class="pl-pds">'</span></span>, <span class="pl-c1">TRUE</span>);</span>
+<span class="pl-s1"></span>
+<span class="pl-s1"><span class="pl-c">/*</span></span>
+<span class="pl-s1"><span class="pl-c"> * --------------------------------------------------------------</span></span>
+<span class="pl-s1"><span class="pl-c"> * Melakukan checking credit</span></span>
+<span class="pl-s1"><span class="pl-c"> *</span></span>
+<span class="pl-s1"><span class="pl-c"> * @return mixed</span></span>
+<span class="pl-s1"><span class="pl-c"> * --------------------------------------------------------------</span></span>
+<span class="pl-s1"><span class="pl-c"> */</span></span>
+<span class="pl-s1"><span class="pl-smi">$credit</span> <span class="pl-k">=</span> <span class="pl-smi">$rajasms</span><span class="pl-k">-&gt;</span>get_credit();</span>
+<span class="pl-s1"></span></pre></div>
+
+<h2>
+<a id="ide-kritik-dan-saran" class="anchor" href="#ide-kritik-dan-saran" aria-hidden="true"><span class="octicon octicon-link"></span></a>Ide, Kritik dan Saran</h2>
+
+<p>Jika anda memiliki ide, kritik ataupun saran, anda dapat mengirimkan email ke <a href="mailto:steevenz@steevenz.com">steevenz@stevenz.com</a>. 
+Anda juga dapat mengunjungi situs pribadi saya di <a href="http://steevenz.com">steevenz.com</a></p>
+
+<h2>
+<a id="bugs-and-issues" class="anchor" href="#bugs-and-issues" aria-hidden="true"><span class="octicon octicon-link"></span></a>Bugs and Issues</h2>
+
+<p>Jika anda menemukan bugs atau issue, anda dapat mempostingnya di <a href="http://github.com/steevenz/rajasms/issues">Github Issues</a>.</p>
+
+<h2>
+<a id="requirements" class="anchor" href="#requirements" aria-hidden="true"><span class="octicon octicon-link"></span></a>Requirements</h2>
+
+<ul>
+<li>PHP 5.4+</li>
+<li><a href="https://getcomposer.org">Composer</a></li>
+<li><a href="http://github.com/o2system/o2curl">O2System CURL (O2CURL)</a></li>
+</ul>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/steevenz">steevenz</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>
