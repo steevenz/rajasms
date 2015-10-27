@@ -1,0 +1,32 @@
+{
+	"name"              : "steevenz/rajasms",
+	"description"       : "RajaSMS API PHP Class",
+	"license"           : "GNU General Public License v2.0 License",
+	"version"           : "1.0.0",
+	"type"              : "php-class",
+	"keywords"          : [ "rajasms", "api" ],
+	"authors"           : [
+		{
+			"name"     : "Steeve Andrian",
+			"email"    : "steevenz@steevenz.com",
+			"homepage" : "http://www.steevenz.com",
+			"role"     : "PHP Programmer"
+		}
+	],
+	"support"           : {
+		"email"  : "steevenz@steevenz.com",
+		"issues" : "https://github.com/steevenz/rajasms/issues"
+	},
+	"links"             : {
+		"wiki"        : "https://github.com/steevenz/rajasms/wiki"
+	},
+	"require"           : {
+		"php"              : ">=5.4.0",
+		"o2system/o2curl"  : "dev-master"
+	},
+	"autoload"          : {
+		"files" : [
+			"src/Rajasms.php"
+		]
+	}
+}
