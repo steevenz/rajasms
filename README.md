@@ -12,7 +12,7 @@ composer require steevenz/rajasms:"dev-master"
 Penggunaan
 ----------
 ```php
-use Steevenz\rajasms;
+use Steevenz\Rajasms;
 
 /*
  * --------------------------------------------------------------
