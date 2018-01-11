@@ -6,7 +6,7 @@ Instalasi
 ---------
 Cara terbaik untuk melakukan instalasi library ini adalah dengan menggunakan [Composer][7]
 ```
-composer require steevenz/rajasms:"dev-master"
+composer require steevenz/rajasms
 ```
 
 Penggunaan
@@ -54,19 +54,19 @@ use Steevenz\Rajasms;
  * --------------------------------------------------------------
  */
  // check sms report tanpa masking
- $report = $rajasms->get_report('123456');
+ $report = $rajasms->getReport('123456');
 
  // check sms report dengan masking
- $report = $rajasms->get_report('123456', TRUE);
+ $report = $rajasms->getReport('123456', true);
 
 /*
  * --------------------------------------------------------------
- * Melakukan checking credit
+ * Melakukan checking credit balance
  *
  * @return mixed
  * --------------------------------------------------------------
  */
-$credit = $rajasms->get_credit();
+$credit = $rajasms->getCreditBalance();
 
 ```
 
@@ -81,9 +81,9 @@ Jika anda menemukan bugs atau issue, anda dapat mempostingnya di [Github Issues]
 
 Requirements
 ------------
-- PHP 5.4+
+- PHP 5.6+
 - [Composer][9]
-- [O2System CURL (O2CURL)][10]
+- [O2System Curl][10]
 
 [1]: http://steevenz.com
 [2]: http://steevenz.com/blog/rajasms-api
@@ -93,5 +93,5 @@ Requirements
 [6]: http://github.com/steevenz/rajasms/issues
 [7]: https://packagist.org/packages/steevenz/rajasms
 [9]: https://getcomposer.org
-[10]: http://github.com/o2system/o2curl
+[10]: http://github.com/o2system/curl
 [11]: http://raja-sms.com
