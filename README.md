@@ -1,5 +1,5 @@
 # RajaSMS
-Ini adalah Unofficial [RajaSMS][11] API PHP Class, yang berfungsi untuk melakukan request API [RajaSMS][11]. Secara default fungsi SMS Masking dalam keadaan off, setiap pengiriman sms akan dilakukan tanpa masking, pastikan anda 
+[RajaSMS][11] API PHP Class Library berfungsi untuk melakukan request API [RajaSMS][11]. Secara default fungsi SMS Masking dalam keadaan off, setiap pengiriman sms akan dilakukan tanpa masking, pastikan anda 
 telah mengikuti regulasi yang berlaku untuk pengiriman sms masking terlebih dahulu.
 
 Instalasi
