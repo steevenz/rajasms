@@ -23,7 +23,7 @@ use Steevenz\Rajasms;
  * --------------------------------------------------------------
  */
  $rajasms = new Rajasms([
-    'serverUrl' => '127.0.0.1' // API yang didapat ketika pendaftaran
+    'serverIp' => '127.0.0.1' // IP yang didapat ketika pendaftaran
     'apiKey => 'API_KEY_ANDA' // Ada pada panel RajaSMS
     'callbackUrl' => 'https://domain.anda/reporting-rajasms', // Callback ke controller reporting anda
     'sendingTime' => null, // Bersifat optional untuk membuat scheduling sms
