@@ -1,4 +1,11 @@
 # RajaSMS
+
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/steevenz/rajasms/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/steevenz/rajasms/?branch=master)
+[![Build Status](https://scrutinizer-ci.com/g/steevenz/rajasms/badges/build.png?b=master)](https://scrutinizer-ci.com/g/steevenz/rajasms/build-status/master)
+[![Latest Stable Version](https://poser.pugx.org/steevenz/rajasms/v/stable)](https://packagist.org/packages/steevenz/rajasms)
+[![Total Downloads](https://poser.pugx.org/steevenz/rajasms/downloads)](https://packagist.org/packages/steevenz/rajasms)
+[![License](https://poser.pugx.org/steevenz/rajasms/license)](https://packagist.org/packages/steevenz/rajasms)
+
 [RajaSMS][11] API PHP Class Library berfungsi untuk melakukan request API [RajaSMS][11]. Secara default fungsi SMS Masking dalam keadaan off, setiap pengiriman sms akan dilakukan tanpa masking, pastikan anda 
 telah mengikuti regulasi yang berlaku untuk pengiriman sms masking terlebih dahulu.
 
