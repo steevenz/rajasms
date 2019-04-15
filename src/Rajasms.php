@@ -412,21 +412,21 @@ class Rajasms
     // ------------------------------------------------------------------------
 
     /**
-     * Rajasms::getStatus
+     * Rajasms::getReports
      *
-     * Get sms delivery status.
+     * Get sms report delivery status.
      *
-     * @return array|bool Returns FALSE if failed.
+     * @return mixed Returns FALSE if failed.
      */
-    public function getStatus()
+    public function getReports()
     {
         $response = json_decode(file_get_contents('php://input'), true);
 
         if ( ! empty($response)) {
-            $result = new ArrayIterator();
+            $reports = new ArrayIterator();
 
             foreach ($response[ 'status_respon' ] as $respon) {
-                $result[] = new SplArrayObject([
+                $reports[] = new SplArrayObject([
                     'sendingId' => $respon[ 'sendingid' ],
                     'number'    => $respon[ 'number' ],
                     'delivery'  => new SplArrayObject([
@@ -436,7 +436,7 @@ class Rajasms
                 ]);
             }
 
-            return $result;
+            return $reports;
         }
 
         return false;

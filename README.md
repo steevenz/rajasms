@@ -22,7 +22,12 @@ use Steevenz\Rajasms;
  * @param string API Key
  * --------------------------------------------------------------
  */
- $rajasms = new Rajasms('USERNAME_ANDA', 'API_KEY_ANDA');
+ $rajasms = new Rajasms([
+    'serverUrl' => '127.0.0.1' // API yang didapat ketika pendaftaran
+    'apiKey => 'API_KEY_ANDA' // Ada pada panel RajaSMS
+    'callbackUrl' => 'https://domain.anda/reporting-rajasms', // Callback ke controller reporting anda
+    'sendingTime' => null, // Bersifat optional untuk membuat scheduling sms
+ ]);
 
 /*
  * --------------------------------------------------------------
@@ -42,22 +47,17 @@ use Steevenz\Rajasms;
  // send dengan masking
  $status = $rajasms->send('082123456789','Testing Raja SMS API', TRUE);
 
+// send sms ke banyak nomor sekaligus (max 1000)
+$status = $rajasms->send(['081234567890', '08211234567890'], 'Testing Raja SMS API');
+
 /*
  * --------------------------------------------------------------
- * Melakukan check sms report
- *
- * @param string SMS ID        Didapat dari status send sms
- * @param bool   Masking       Tidak menggunakan SMS Masking 
- *                             secara default
+ * Menerima Reporting pada Controller Callback
  *
  * @return object|bool
  * --------------------------------------------------------------
  */
- // check sms report tanpa masking
- $report = $rajasms->getReport('123456');
-
- // check sms report dengan masking
- $report = $rajasms->getReport('123456', true);
+ $rajasms->getReports();
 
 /*
  * --------------------------------------------------------------
