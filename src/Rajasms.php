@@ -37,6 +37,10 @@ namespace Steevenz;
 
 use O2System\Curl;
 use O2System\Kernel\Http\Message\Uri;
+use O2System\Spl\DataStructures\SplArrayObject;
+use O2System\Spl\Iterators\ArrayIterator;
+use O2System\Spl\Traits\Collectors\ConfigCollectorTrait;
+use O2System\Spl\Traits\Collectors\ErrorCollectorTrait;
 
 /**
  * RajaSMS
@@ -46,104 +50,84 @@ use O2System\Kernel\Http\Message\Uri;
  */
 class Rajasms
 {
-    /**
-     * API URL
-     *
-     * @access  protected
-     * @type    string
-     */
-    protected $apiUrl = 'http://162.211.84.203/sms/';
+    use ConfigCollectorTrait;
+    use ErrorCollectorTrait;
 
     /**
-     * API Key
+     * Rajasms::$deliveryStatuses
      *
-     * @access  protected
-     * @type    string
+     * List of RajaSMS delivery status by code numbers.
+     *
+     * @var array
      */
-    protected $apiKey = null;
+    public $deliveryStatusCodes = [
+        1  => 'Schedule',
+        2  => 'Sent',
+        3  => 'Delivered Success',
+        4  => 'Delivered Error',
+        5  => 'System Failed',
+        6  => 'Saldo Minus/Expired',
+        7  => 'Reject',
+        8  => 'System Error',
+        9  => 'Duplicate Message',
+        10 => 'Delivered Success Backup',
+    ];
 
-    /**
-     * RajaSMS Username Account
-     *
-     * @access  protected
-     * @type    string
-     */
-    protected $username = null;
+    public $globalErrorMessagesCodes = [
+        10 => 'Success',
+        20 => 'Json Post Error',
+        30 => 'ApiKey not register',
+        40 => 'Ip address not register',
+        50 => 'Expired Balance',
+        55 => 'Maximum Data',
+    ];
 
     /**
      * Rajasms::$response
      *
-     * Rajasms response.
+     * RajaSMS original response.
      *
      * @access  protected
      * @type    mixed
      */
     protected $response;
 
-    /**
-     * Rajasms::$errors
-     *
-     * Rajasms errors.
-     *
-     * @access  protected
-     * @type    array
-     */
-    protected $errors = [];
-
     // ------------------------------------------------------------------------
 
     /**
      * Rajasms::__construct
      *
-     * @param string $username
-     * @param string $apiKey
+     * @param array $config
      *
      * @access  public
      */
-    public function __construct($username = null, $apiKey = null, $apiUrl = null)
+    public function __construct(array $config = [])
     {
-        if (isset($username)) {
-            if (is_array($username)) {
-                if (isset($username[ 'username' ])) {
-                    $this->setUsername($username);
-                }
+        $defaultConfig = [
+            'serverIp'    => null,
+            'apiKey'      => null,
+            'callbackUrl' => null,
+            'sendingTime' => null,
+        ];
 
-                if (isset($username[ 'api_key' ])) {
-                    $apiKey = $username[ 'api_key' ];
-                }
-
-                if (isset($username[ 'api_url' ])) {
-                    $apiUrl = $username[ 'api_url' ];
-                }
-            } else {
-                $this->setUsername($username);
-            }
-        }
-
-        if (isset($apiKey)) {
-            $this->setApiKey($apiKey);
-        }
-
-        if (isset($apiUrl)) {
-            $this->setApiUrl($apiUrl);
-        }
+        $this->setConfig(array_merge($defaultConfig, $config));
     }
 
     // ------------------------------------------------------------------------
 
     /**
-     * Rajasms::setUsername
+     * Rajasms::setServerIp
      *
-     * Set Username.
+     * Set RajaSMS API Server Ip Address.
      *
-     * @param   string $username RajaSMS Username Account
+     * @param string $serverIp RajaSMS API Server Ip Address.
      *
      * @access  public
      * @return  static
      */
-    public function setUsername($username)
+    public function setServerIp($serverIp)
     {
-        $this->username = $username;
+        $this->setConfig('serverIp', $serverIp);
 
         return $this;
     }
@@ -153,16 +137,16 @@ class Rajasms
     /**
      * Rajasms::setApiKey
      *
-     * Set API Key.
+     * Set RajaSMS API Key.
      *
-     * @param   string $apiKey RajaSMS API Key
+     * @param string $apiKey RajaSMS API Key
      *
      * @access  public
-     * @return  object
+     * @return  static
      */
     public function setApiKey($apiKey)
     {
-        $this->apiKey = $apiKey;
+        $this->setConfig('apiKey', $apiKey);
 
         return $this;
     }
@@ -170,18 +154,41 @@ class Rajasms
     // ------------------------------------------------------------------------
 
     /**
-     * Rajasms::setApiUrl
+     * Rajasms::setCallbackUrl
      *
-     * Set API Url.
+     * Set RajaSMS API Callback Url.
      *
-     * @param   string $apiUrl RajaSMS API Url
+     * @param string $callbackUrl RajaSMS API Callback Url
      *
      * @access  public
-     * @return  object
+     * @return  static
      */
-    public function setApiUrl($apiUrl)
+    public function setCallbackUrl($callbackUrl)
     {
-        $this->apiUrl = $apiUrl;
+        $this->setConfig('callbackUrl', $callbackUrl);
+
+        return $this;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Rajasms::setSendingTime
+     *
+     * Set RajaSMS Sending Time.
+     *
+     * @param string $sendingTime Format: yyyy-mm-dd hh-mm-ss or empty
+     *
+     * @access  public
+     * @return  static
+     */
+    public function setSendingTime($sendingTime)
+    {
+        if (is_string($sendingTime)) {
+            $sendingTime = strtotime($sendingTime);
+        }
+
+        $this->setConfig('sendingTime', date('Y-m-d H:m:s', $sendingTime));
 
         return $this;
     }
@@ -199,30 +206,30 @@ class Rajasms
      *
      * @access  protected
      * @return  mixed
+     * @throws \O2System\Spl\Exceptions\Logic\BadFunctionCall\BadPhpExtensionCallException
      */
     protected function request($path, $params = [], $type = 'GET')
     {
         $path = 'sms/' . $path;
 
         // default params
-        if (empty($this->apiKey)) {
-            throw new \InvalidArgumentException('RajaSMS: Invalid API Key');
-        } else {
-            $params[ 'key' ] = $this->apiKey;
+        if (empty($this->config[ 'serverIp' ])) {
+            throw new \InvalidArgumentException('RajaSMS: Server Ip Address is not set!');
         }
 
-        if (empty($this->username)) {
-            throw new \InvalidArgumentException('RajaSMS: Please set your username account');
+        if (empty($this->config[ 'apiKey' ])) {
+            throw new \InvalidArgumentException('RajaSMS: API Key is not set');
         } else {
-            $params[ 'username' ] = $this->username;
+            $params[ 'apikey' ] = $this->config[ 'apiKey' ];
         }
 
-        $uri = (new Uri($this->apiUrl))->withPath($path);
+        if ( ! empty($this->config[ 'callbackUrl' ]) and isset($params[ 'datapacket' ])) {
+            $params[ 'callbackurl' ] = $this->config[ 'callbackUrl' ];
+        }
+
+        $uri = (new Uri($this->config[ 'serverIp' ]))->withPath($path);
 
         $request = new Curl\Request();
-        $request->setHeaders([
-            'key' => $this->apiKey,
-        ]);
 
         $request->setConnectionTimeout(500);
 
@@ -233,23 +240,15 @@ class Rajasms
                 break;
 
             case 'POST':
-                $request->addHeader('content-type', 'application/x-www-form-urlencoded');
-                $this->response = $request->setUri($uri)->post($params);
+                $request->addHeader('content-type', 'application/json');
+                $this->response = $request->setUri($uri)->post($params, 'JSON');
                 break;
         }
 
         if (false !== ($error = $this->response->getError())) {
-            $this->errors = $error;
-        } else {
-            if( $body = $this->response->getBody() ) {
-                $xbody = explode('|', $body);
-
-                if ($xbody[ 0 ] == 1) {
-                    return $xbody[ 1 ];
-                } else {
-                    return $xbody;
-                }
-            }
+            $this->addError($error->code, $error->message);
+        } elseif ($body = $this->response->getBody()) {
+            return $body;
         }
 
         return false;
@@ -262,58 +261,112 @@ class Rajasms
      *
      * Send SMS
      *
-     * @param   string $msisdn  MSISDN Number
-     * @param   string $text    SMS Text
-     * @param   bool   $masking Use SMS Masking
+     * @param string $msisdn  MSISDN Number
+     * @param string $message SMS Text
+     * @param bool   $masking Use SMS Masking
      *
      * @access  public
      * @return  mixed
+     * @throws \O2System\Spl\Exceptions\Logic\BadFunctionCall\BadPhpExtensionCallException
      */
-    public function send($msisdn, $text, $masking = false)
+    public function send($msisdn, $message, $masking = false)
     {
-        if (preg_match('/^(62[1-9]{1}[0-9]{1,2})[0-9]{6,8}$/', $msisdn) == 1) {
-            $msisdn = '0' . substr($msisdn, 2);
-        } elseif (preg_match('/^(\+62[1-9]{1}[0-9]{1,2})[0-9]{6,8}$/', $msisdn) == 1) {
-            $msisdn = '0' . substr($msisdn, 3);
-        }
+        $params[ 'datapacket' ] = [];
 
-        if (preg_match('/^(0[1-9]{1}[0-9]{1,2})[0-9]{6,8}$/', $msisdn) == 1) {
-            $text = trim(strval($text));
-            $text = (strlen($text) > 160) ? substr($text, 0, 160) : $text;
-
-            $credit = $this->getCreditBalance();
-
-            if (($credit->balance > 500) AND ($credit->expired > time())) {
-                $params[ 'number' ] = $msisdn;
-                $params[ 'message' ] = urlencode($text);
-
-                if ($masking === true) {
-                    $result = $this->request('smsmasking.php', $params);
-                } else {
-                    $result = $this->request('smsreguler.php', $params);
+        if (is_array($msisdn)) {
+            $i = 1;
+            foreach ($msisdn as $number) {
+                if (false !== ($sendPackageData = $this->buildSendPackageData([
+                        'msisdn'      => $number,
+                        'message'     => $message,
+                        'sendingTime' => isset($this->config[ 'sendingTime' ]) ? $this->config[ 'sendingTime' ] : null,
+                    ]))) {
+                    array_push($params[ 'datapacket' ], $sendPackageData);
                 }
 
-                if (is_array($result)) {
-                    $status = new \stdClass();
+                if ($i === 1000) {
+                    break;
+                }
 
-                    if ($result[ 0 ] == 0) {
-                        $status->success = true;
-                        $status->id_sms = $result[ 1 ];
-                        $status->message = null;
-                    } else {
-                        $status->success = false;
-                        $status->id_sms = null;
-                        $status->message = $result[ 1 ];
+                $i++;
+            }
+        } elseif (false !== ($sendPackageData = $this->buildSendPackageData([
+                'msisdn'      => $msisdn,
+                'message'     => $message,
+                'sendingTime' => isset($this->config[ 'sendingTime' ]) ? $this->config[ 'sendingTime' ] : null,
+            ]))) {
+            array_push($params[ 'datapacket' ], $sendPackageData);
+        }
+
+        $credit = $this->getCreditBalance($masking);
+
+        if (($credit->balance > 500) and (strtotime($credit->expired) > time()) and count($params[ 'datapacket' ]) > 0) {
+
+            if ($masking === true) {
+                $result = $this->request('api_sms_masking_send_json.php', $params, 'POST');
+            } else {
+                $result = $this->request('api_sms_reguler_send_json.php', $params, 'POST');
+            }
+
+            if (isset($result[ 'sending_respon' ])) {
+                if (isset($result[ 'sending_respon' ][ 0 ])) {
+                    if ($result[ 'sending_respon' ][ 0 ][ 'globalstatus' ] > 10) {
+                        $this->addError($result[ 'sending_respon' ][ 0 ][ 'globalstatus' ],
+                            $result[ 'sending_respon' ][ 0 ][ 'globalstatustext' ]);
+
+                        return false;
+                    }
+                }
+
+                if (isset($result[ 'sending_respon' ][ 0 ][ 'datapacket' ])) {
+                    $reports = new ArrayIterator();
+
+                    foreach ($result[ 'sending_respon' ][ 0 ][ 'datapacket' ] as $respon) {
+                        $reports = new SplArrayObject([
+                            'sendingId' => $respon[ 'sendingid' ],
+                            'number'    => $respon[ 'number' ],
+                            'sending'   => new SplArrayObject([
+                                'status'  => $respon[ 'sendingstatus' ],
+                                'message' => $respon[ 'sendingstatustext' ],
+                            ]),
+                            'price'     => $respon[ 'price' ],
+                        ]);
                     }
 
-                    return $status;
+                    return $reports;
                 }
-
-                return $result;
             }
-        } else {
-            throw new \InvalidArgumentException('Rajasms: Invalid Phone Number');
+
+            return $result;
         }
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Rajasms::buildSendPackageData
+     *
+     * @param array $data
+     *
+     * @return array|bool
+     */
+    protected function buildSendPackageData(array $data)
+    {
+        if (preg_match('/^(62[1-9]{1}[0-9]{1,2})[0-9]{6,8}$/', $data[ 'msisdn' ]) == 1) {
+            $data[ 'msisdn' ] = '0' . substr($data[ 'msisdn' ], 2);
+        } elseif (preg_match('/^(\+62[1-9]{1}[0-9]{1,2})[0-9]{6,8}$/', $data[ 'msisdn' ]) == 1) {
+            $data[ 'msisdn' ] = '0' . substr($data[ 'msisdn' ], 3);
+        }
+
+        if (preg_match('/^(0[1-9]{1}[0-9]{1,2})[0-9]{6,8}$/', $data[ 'msisdn' ]) == 1) {
+            return [
+                'number'          => trim($data[ 'msisdn' ]),
+                'message'         => urlencode(stripslashes(utf8_encode($data[ 'message' ]))),
+                'sendingdatetime' => isset($data[ 'sendingTime' ]) ? $data[ 'sendingTime' ] : null,
+            ];
+        }
+
+        return false;
     }
 
     // ------------------------------------------------------------------------
@@ -325,23 +378,32 @@ class Rajasms
      *
      * @access  public
      * @return  mixed
+     * @throws \O2System\Spl\Exceptions\Logic\BadFunctionCall\BadPhpExtensionCallException
      */
-    public function getCreditBalance()
+    public function getCreditBalance($masking = false)
     {
-        $result = $this->request('smssaldo.php');
+        if ($masking === true) {
+            $result = $this->request('api_sms_masking_balance_json.php', [], 'POST');
+        } else {
+            $result = $this->request('api_sms_reguler_balance_json.php', [], 'POST');
+        }
 
-        if (is_array($result)) {
-            $credit = new \stdClass();
+        if (isset($result[ 'balance_respon' ])) {
+            if (isset($result[ 'balance_respon' ][ 0 ][ 'globalstatus' ])) {
+                if ($result[ 'balance_respon' ][ 0 ][ 'globalstatus' ] > 10) {
+                    $this->addError($result[ 'balance_respon' ][ 0 ][ 'globalstatus' ],
+                        $result[ 'balance_respon' ][ 0 ][ 'globalstatustext' ]);
 
-            foreach ($result as $key => $value) {
-                if (is_numeric($value)) {
-                    $credit->balance = $value;
-                } elseif (preg_match("/^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$/", $value)) {
-                    $credit->expired = strtotime($value);
+                    return false;
                 }
-            }
 
-            $result = $credit;
+                $credit = new SplArrayObject([
+                    'balance' => $result[ 'balance_respon' ][ 0 ][ 'Balance' ],
+                    'expired' => $result[ 'balance_respon' ][ 0 ][ 'Expired' ],
+                ]);
+
+                $result = $credit;
+            }
         }
 
         return $result;
@@ -350,40 +412,28 @@ class Rajasms
     // ------------------------------------------------------------------------
 
     /**
-     * Rajasms::getReport
+     * Rajasms::getStatus
      *
-     * Check status report of sms status by SMS ID.
+     * Get sms delivery status.
      *
-     * @param      $idSms   SMS ID
-     * @param bool $masking Use SMS Masking
-     *
-     * @return bool|mixed|\stdClass
+     * @return array|bool Returns FALSE if failed.
      */
-    public function getReport($idSms, $masking = false)
+    public function getStatus()
     {
-        $idSms = intval(trim(strval($idSms)));
+        $response = json_decode(file_get_contents('php://input'), true);
 
-        if ( ! empty($idSms)) {
-            $params[ 'id' ] = $idSms;
+        if ( ! empty($response)) {
+            $result = new ArrayIterator();
 
-            if ($masking === true) {
-                $result = $this->request('smsmaskingreport.php', $params);
-            } else {
-                $result = $this->request('smsregulerreport.php', $params);
-            }
-
-            if (is_array($result)) {
-                $status = new \stdClass();
-
-                if ($result[ 0 ] == 0) {
-                    $status->success = true;
-                    $status->message = $result[ 1 ];
-                } else {
-                    $status->success = false;
-                    $status->message = $result[ 1 ];
-                }
-
-                return $status;
+            foreach ($response[ 'status_respon' ] as $respon) {
+                $result[] = new SplArrayObject([
+                    'sendingId' => $respon[ 'sendingid' ],
+                    'number'    => $respon[ 'number' ],
+                    'delivery'  => new SplArrayObject([
+                        'status'  => $respon[ 'deliverystatus' ],
+                        'message' => $respon[ 'deliverystatustext' ],
+                    ]),
+                ]);
             }
 
             return $result;
@@ -399,32 +449,11 @@ class Rajasms
      *
      * Get original response object.
      *
-     * @param   string $offset Response Offset Object
-     *
      * @access  public
      * @return  \O2System\Curl\Response|bool Returns FALSE if failed.
      */
     public function getResponse()
     {
         return $this->response;
-    }
-
-    // ------------------------------------------------------------------------
-
-    /**
-     * Rajasms::getErrors
-     *
-     * Get errors request.
-     *
-     * @access  public
-     * @return  array|bool Returns FALSE if there is no errors.
-     */
-    public function getErrors()
-    {
-        if (count($this->errors)) {
-            return $this->errors;
-        }
-
-        return false;
     }
 }

@@ -81,7 +81,7 @@ Jika anda menemukan bugs atau issue, anda dapat mempostingnya di [Github Issues]
 
 Requirements
 ------------
-- PHP 5.6+
+- PHP 7.2+
 - [Composer][9]
 - [O2System Curl][10]
 
