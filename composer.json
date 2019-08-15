@@ -1,31 +1,34 @@
 {
-	"name"              : "steevenz/rajasms",
-	"description"       : "RajaSMS API PHP Class",
-	"license"           : "MIT",
-	"type"              : "php-class",
-	"keywords"          : [ "rajasms", "api" ],
-	"authors"           : [
-		{
-			"name"     : "Steeve Andrian",
-			"email"    : "steevenz@steevenz.com",
-			"homepage" : "http://www.steevenz.com",
-			"role"     : "PHP Programmer"
-		}
-	],
-	"support"           : {
-		"email"  : "steevenz@steevenz.com",
-		"issues" : "https://github.com/steevenz/rajasms/issues"
-	},
-	"links"             : {
-		"wiki"        : "https://github.com/steevenz/rajasms/wiki"
-	},
-	"require"           : {
-		"php"              : "~7.2.0",
-		"o2system/curl"  : "*"
-	},
-	"autoload"          : {
-		"files" : [
-			"src/Rajasms.php"
-		]
-	}
+   "name":"steevenz/rajasms",
+   "description":"RajaSMS API PHP Class",
+   "license":"MIT",
+   "type":"php-class",
+   "keywords":[
+      "rajasms",
+      "api"
+   ],
+   "authors":[
+      {
+         "name":"Steeve Andrian",
+         "email":"steevenz@steevenz.com",
+         "homepage":"http://www.steevenz.com",
+         "role":"PHP Programmer"
+      }
+   ],
+   "support":{
+      "email":"steevenz@steevenz.com",
+      "issues":"https://github.com/steevenz/rajasms/issues"
+   },
+   "links":{
+      "wiki":"https://github.com/steevenz/rajasms/wiki"
+   },
+   "require":{
+      "php":">=7.2.0",
+      "o2system/curl":"*"
+   },
+   "autoload":{
+      "files":[
+         "src/Rajasms.php"
+      ]
+   }
 }
